@@ -40,6 +40,7 @@ int main(int argc, char** argv)
   // initialize node
   ros::init(argc, argv, "joint_trajectory_action");
   JointTrajectoryAction action;
+  action.createTimers();
   action.run();
 
   return 0;

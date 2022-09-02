@@ -47,6 +47,7 @@
 #include "simple_message/messages/joint_traj_pt_message.h"
 #include "trajectory_msgs/JointTrajectory.h"
 #include "motoman_driver/industrial_robot_client/robot_group.h"
+#include <motoman_msgs/MotomanMotionReplyCodes.h>
 
 namespace industrial_robot_client
 {
@@ -347,6 +348,8 @@ protected:
   ros::Subscriber sub_joint_trajectory_ex_;  // handle for joint-trajectory topic subscription
   ros::ServiceServer srv_joint_trajectory_ex_;  // handle for joint-trajectory service
   ros::ServiceServer srv_stop_motion_;   // handle for stop_motion service
+
+  ros::Publisher pub_motoman_motion_reply_codes_;  // publish motoman error code from streamingThread activity
 
   std::map<int, ros::ServiceServer> srv_stops_;
   std::map<int, ros::ServiceServer> srv_joints_;

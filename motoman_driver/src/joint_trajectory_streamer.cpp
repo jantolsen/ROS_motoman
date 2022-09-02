@@ -30,7 +30,7 @@
  */
 
 #include "motoman_driver/joint_trajectory_streamer.h"
-#include "motoman_driver/simple_message/messages/motoman_motion_reply_message.h"
+#include "motoman_driver/simple_message/motoman_motion_reply_message.h"
 #include "simple_message/messages/joint_traj_pt_full_message.h"
 #include "motoman_driver/simple_message/messages/joint_traj_pt_full_ex_message.h"
 #include "industrial_robot_client/utils.h"
@@ -91,7 +91,7 @@ bool MotomanJointTrajectoryStreamer::init(SmplMsgConnection* connection, const s
 
   enabler_ = node_.advertiseService("robot_enable", &MotomanJointTrajectoryStreamer::enableRobotCB, this);
 
-  srv_select_tool_ = node_.advertiseService("select_tool", &MotomanJointTrajectoryStreamer::selectToolCB, this);
+  reset_ = node_.advertiseService("controller_reset", &MotomanJointTrajectoryStreamer::resetControllerCB, this);
 
   return rtn;
 }
@@ -116,16 +116,13 @@ bool MotomanJointTrajectoryStreamer::init(SmplMsgConnection* connection, const s
 
   enabler_ = node_.advertiseService("robot_enable", &MotomanJointTrajectoryStreamer::enableRobotCB, this);
 
-  srv_select_tool_ = node_.advertiseService("select_tool", &MotomanJointTrajectoryStreamer::selectToolCB, this);
+  reset_ = node_.advertiseService("controller_reset", &MotomanJointTrajectoryStreamer::resetControllerCB, this);
 
   return rtn;
 }
 
 MotomanJointTrajectoryStreamer::~MotomanJointTrajectoryStreamer()
 {
-  // SmplMsgConnection is not thread safe, so lock first
-  // NOTE: motion_ctrl_ uses the SmplMsgConnection here
-  const std::lock_guard<std::mutex> lock{smpl_msg_conx_mutex_};
   // TODO( ): Find better place to call StopTrajMode
   motion_ctrl_.setTrajMode(false);   // release TrajMode, so INFORM jobs can run
 }
@@ -135,12 +132,8 @@ bool MotomanJointTrajectoryStreamer::disableRobotCB(std_srvs::Trigger::Request &
 {
   trajectoryStop();
 
-  {
-    // SmplMsgConnection is not thread safe, so lock first
-    // NOTE: motion_ctrl_ uses the SmplMsgConnection here
-    const std::lock_guard<std::mutex> lock{smpl_msg_conx_mutex_};
-    res.success = motion_ctrl_.setTrajMode(false);
-  }
+  bool ret = motion_ctrl_.setTrajMode(false);
+  res.success = ret;
 
   if (!res.success)
   {
@@ -156,62 +149,56 @@ bool MotomanJointTrajectoryStreamer::disableRobotCB(std_srvs::Trigger::Request &
   return true;
 }
 
-bool MotomanJointTrajectoryStreamer::enableRobotCB(std_srvs::Trigger::Request& req, std_srvs::Trigger::Response& res)
+bool MotomanJointTrajectoryStreamer::enableRobotCB(std_srvs::Trigger::Request &req,
+               std_srvs::Trigger::Response &res)
 {
-  {
-    // SmplMsgConnection is not thread safe, so lock first
-    // NOTE: motion_ctrl_ uses the SmplMsgConnection here
-    const std::lock_guard<std::mutex> lock{smpl_msg_conx_mutex_};
-    res.success = motion_ctrl_.setTrajMode(true);
+  bool retry = true;
+  res.success = motion_ctrl_.setTrajMode(true);
+
+  if (!res.success){
+    ROS_WARN_STREAM("Motoman robot enable trying again.");
+    retry = motion_ctrl_.setTrajMode(true);
   }
 
-  if (!res.success)
-  {
-    res.message = "Motoman robot was NOT enabled. Please re-examine and retry.";
+  if (!res.success && !retry) {
+    res.message="Motoman robot was NOT enabled. Please re-examine and retry.";
     ROS_ERROR_STREAM(res.message);
   }
-  else
-  {
-    res.message = "Motoman robot is now enabled and will accept motion commands.";
+  else {
+    res.success = true;
+    res.message="Motoman robot is now enabled and will accept motion commands.";
     ROS_WARN_STREAM(res.message);
   }
 
   return true;
+
 }
 
-bool MotomanJointTrajectoryStreamer::selectToolCB(motoman_msgs::SelectTool::Request &req,
-  motoman_msgs::SelectTool::Response &res)
+bool MotomanJointTrajectoryStreamer::resetControllerCB(std_srvs::Trigger::Request &req,
+               std_srvs::Trigger::Response &res)
 {
-  std::string err_msg;
+  bool retry = true;
+  res.success = motion_ctrl_.resetAlarm();
 
-  {
-    // SmplMsgConnection is not thread safe, so lock first
-    // NOTE: motion_ctrl_ uses the SmplMsgConnection here
-    const std::lock_guard<std::mutex> lock{smpl_msg_conx_mutex_};
-    res.success = motion_ctrl_.selectToolFile(req.group_number, req.tool_number, err_msg);
+  if (!res.success){
+    ROS_WARN_STREAM("Motoman robot controller not reset.");
+    retry = motion_ctrl_.resetAlarm();
   }
 
-  if (!res.success)
-  {
-    // provide caller with failure indication
-    // TODO( ): should we also return the result code?
-    std::stringstream message;
-    message << "Tool file change failed (grp: " << req.group_number
-      << ", tool: " << req.tool_number << "): " << err_msg;
-    res.message = message.str();
+  if (!res.success && !retry) {
+    res.message="Motoman robot controller was NOT reset. Please re-examine and retry.";
     ROS_ERROR_STREAM(res.message);
   }
-  else
-  {
-    ROS_DEBUG_STREAM("Tool file changed to: " << req.tool_number
-      << ", for group: " << req.group_number);
+  else {
+    res.success = true;
+    res.message="Motoman robot alarm is now reset.";
+    ROS_WARN_STREAM(res.message);
   }
 
-  // the ROS service was successfully invoked, so return true (even if the
-  // MotoROS service was not successfully invoked)
   return true;
-}
 
+}
+  
 // override create_message to generate JointTrajPtFull message (instead of default JointTrajPt)
 bool MotomanJointTrajectoryStreamer::create_message(int seq, const trajectory_msgs::JointTrajectoryPoint& pt,
                                                     SimpleMessage* msg)
@@ -417,15 +404,28 @@ bool MotomanJointTrajectoryStreamer::VectorToJointData(const std::vector<double>
 // override send_to_robot to provide controllerReady() and setTrajMode() calls
 bool MotomanJointTrajectoryStreamer::send_to_robot(const std::vector<SimpleMessage>& messages)
 {
-  bool motion_ctrl_result = false;
+  if (!motion_ctrl_.controllerReady())
+    ROS_ERROR_RETURN(false, "Failed to initialize MotoRos motion, trajectory execution ABORTED. If safe, call the 'robot_enable' service to (re-)enable Motoplus motion and retry.");
+  if(!motion_ctrl_.controllerReady())
   {
-    // SmplMsgConnection is not thread safe, so lock first
-    // NOTE: motion_ctrl_ uses the SmplMsgConnection here
-    const std::lock_guard<std::mutex> lock{smpl_msg_conx_mutex_};
-    motion_ctrl_result = motion_ctrl_.controllerReady();
+    double wait_time = 1.0;
+    ROS_WARN_STREAM("MotomanJointTrajectoryStreamer::send_to_robot: first trial to initialize MotoRos motion failed, will reset the trajectory mode and try second chance after wait for " << wait_time << " sec");
+    if(!motion_ctrl_.setTrajMode(true))
+    {
+      ROS_WARN("MotomanJointTrajectoryStreamer::send_to_robot: Motoman robot set trajectory mode again");
+      ros::Duration(wait_time).sleep();
+      if(!motion_ctrl_.setTrajMode(true))
+      {
+        ROS_ERROR_RETURN(false, "MotomanJointTrajectoryStreamer::send_to_robot: Failed to set trajectory mode on MotoRos, trajectory execution ABORTED. If safe, call the 'robot_enable' service to (re-)enable Motoplus motion and retry.");
+      }
+    }
+    ros::Duration(wait_time).sleep();
+    if(!motion_ctrl_.controllerReady())
+    {
+      ROS_ERROR_RETURN(false, "MotomanJointTrajectoryStreamer::send_to_robot: Failed to initialize MotoRos motion, trajectory execution ABORTED. If safe, call the 'robot_enable' service to (re-)enable Motoplus motion and retry.");
+    }
   }
-
-  if (!motion_ctrl_result)
+  if (!motion_ctrl_.controllerReady())
     ROS_ERROR_RETURN(false, "Failed to initialize MotoRos motion, trajectory execution ABORTED. If safe, call the "
                             "'robot_enable' service to (re-)enable Motoplus motion and retry.");
 
@@ -436,8 +436,8 @@ bool MotomanJointTrajectoryStreamer::send_to_robot(const std::vector<SimpleMessa
 void MotomanJointTrajectoryStreamer::streamingThread()
 {
   int connectRetryCount = 1;
-  bool is_connected = false;
-  bool is_msg_sent = false;
+  motoman_msgs::MotomanMotionReplyCodes motion_reply_codes;
+  bool retrial = false;
 
   ROS_INFO("Starting Motoman joint trajectory streamer thread");
   while (ros::ok())
@@ -448,25 +448,11 @@ void MotomanJointTrajectoryStreamer::streamingThread()
     if (connectRetryCount-- > 0)
     {
       ROS_INFO("Connecting to robot motion server");
-      {
-        // SmplMsgConnection is not thread safe, so lock first
-        const std::lock_guard<std::mutex> lock{smpl_msg_conx_mutex_};
-        this->connection_->makeConnect();
-      }
+      this->connection_->makeConnect();
       ros::Duration(0.250).sleep();  // wait for connection
 
-      is_connected = false;
-      {
-        // SmplMsgConnection is not thread safe, so lock first
-        // TODO(gavanderhoorn): not sure this needs to be protected by a mutex
-        const std::lock_guard<std::mutex> lock{smpl_msg_conx_mutex_};
-        is_connected = this->connection_->isConnected();
-      }
-
-      if (is_connected)
-      {
+      if (this->connection_->isConnected())
         connectRetryCount = 0;
-      }
       else if (connectRetryCount <= 0)
       {
         ROS_ERROR("Timeout connecting to robot controller.  Send new motion command to retry.");
@@ -475,7 +461,6 @@ void MotomanJointTrajectoryStreamer::streamingThread()
       continue;
     }
 
-    // this does not lock smpl_msg_conx_mutex_, but the mutex from JointTrajectoryStreamer
     this->mutex_.lock();
 
     SimpleMessage msg, tmpMsg, reply;
@@ -494,15 +479,7 @@ void MotomanJointTrajectoryStreamer::streamingThread()
         break;
       }
 
-      is_connected = false;
-      {
-        // SmplMsgConnection is not thread safe, so lock first
-        // TODO(gavanderhoorn): not sure this needs to be protected by a mutex
-        const std::lock_guard<std::mutex> lock{smpl_msg_conx_mutex_};
-        is_connected = this->connection_->isConnected();
-      }
-
-      if (!is_connected)
+      if (!this->connection_->isConnected())
       {
         ROS_DEBUG("Robot disconnected.  Attempting reconnect...");
         connectRetryCount = 5;
@@ -513,17 +490,8 @@ void MotomanJointTrajectoryStreamer::streamingThread()
       msg.init(tmpMsg.getMessageType(), CommTypes::SERVICE_REQUEST,
                ReplyTypes::INVALID, tmpMsg.getData());  // set commType=REQUEST
 
-      is_msg_sent = false;
-      {
-        // SmplMsgConnection is not thread safe, so lock first
-        const std::lock_guard<std::mutex> lock{smpl_msg_conx_mutex_};
-        is_msg_sent = this->connection_->sendAndReceiveMsg(msg, reply, false);
-      }
-
-      if (!is_msg_sent)
-      {
+      if (!this->connection_->sendAndReceiveMsg(msg, reply, false))
         ROS_WARN("Failed sent joint point, will try again");
-      }
       else
       {
         MotionReplyMessage reply_status;
@@ -533,20 +501,50 @@ void MotomanJointTrajectoryStreamer::streamingThread()
           this->state_ = TransferStates::IDLE;
           break;
         }
+        // FAKE CODE BEGIN
+//        if(this->current_point_ == 0){
+//          reply_status.reply_.setResult(motoman::simple_message::motion_reply::MotionReplyResults::INVALID);
+//          reply_status.reply_.setSubcode(motoman::simple_message::motion_reply::MotionReplySubcodes::Invalid::DATA_START_POS);
+//        }
+//        ROS_WARN_STREAM("retrial boolean: " << retrial);
+        // FAKE CODE END
 
-        if (reply_status.reply_.getResult() == MotionReplyResults::SUCCESS)
+        if (!retrial && reply_status.reply_.getResult() == MotionReplyResults::SUCCESS)
         {
           ROS_DEBUG("Point[%d of %d] sent to controller",
                     this->current_point_, static_cast<int>(this->current_traj_.size()));
           this->current_point_++;
         }
-        else if (reply_status.reply_.getResult() == MotionReplyResults::BUSY)
+        else if (!retrial && reply_status.reply_.getResult() == MotionReplyResults::BUSY)
           break;  // silently retry sending this point
         else
         {
+          // if retrial flag is up, then override the reply_status as a copy from the previous trajectory point to trip the actual error
+          if(retrial)
+          {
+            reply_status.reply_.setResult(motion_reply_codes.resultCode);
+            reply_status.reply_.setSubcode(motion_reply_codes.subCode);
+            retrial = false;
+          }
           ROS_ERROR_STREAM("Aborting Trajectory.  Failed to send point"
                            << " (#" << this->current_point_ << "): "
                            << MotomanMotionCtrl::getErrorString(reply_status.reply_));
+          // publish the subcode for error hadling
+          motion_reply_codes.resultCode = reply_status.reply_.getResult();
+          motion_reply_codes.subCode = reply_status.reply_.getSubcode();
+          // in case of trajectory start point mismatch error, feed the first point (#0) to the controller anyway and then flag up 'retrial'
+          // to abort the trajectory at next point (#1)
+          if(this->current_point_ == 0 &&
+             reply_status.reply_.getResult() == motoman::simple_message::motion_reply::MotionReplyResults::INVALID &&
+             reply_status.reply_.getSubcode() == motoman::simple_message::motion_reply::MotionReplySubcodes::Invalid::DATA_START_POS)
+          {
+            ROS_INFO("Trying to feed first trajectory point to controller, and then it will stop");
+            this->current_point_++;
+            retrial = true;
+            break;  // continue to next point until we feed the actual point to the controller
+          }
+          pub_motoman_motion_reply_codes_.publish(motion_reply_codes);
+          // state transition to idle and break out the switch
           this->state_ = TransferStates::IDLE;
           break;
         }
@@ -557,7 +555,6 @@ void MotomanJointTrajectoryStreamer::streamingThread()
       this->state_ = TransferStates::IDLE;
       break;
     }
-    // this does not unlock smpl_msg_conx_mutex_, but the mutex from JointTrajectoryStreamer
     this->mutex_.unlock();
   }
   ROS_WARN("Exiting trajectory streamer thread");
@@ -567,9 +564,6 @@ void MotomanJointTrajectoryStreamer::streamingThread()
 void MotomanJointTrajectoryStreamer::trajectoryStop()
 {
   this->state_ = TransferStates::IDLE;  // stop sending trajectory points
-  // SmplMsgConnection is not thread safe, so lock first
-  // NOTE: motion_ctrl_ uses the SmplMsgConnection here
-  const std::lock_guard<std::mutex> lock{smpl_msg_conx_mutex_};
   motion_ctrl_.stopTrajectory();
 }
 
@@ -636,6 +630,11 @@ bool MotomanJointTrajectoryStreamer::is_valid(const motoman_msgs::DynamicJointTr
     ROS_ERROR_RETURN(false, "Validation failed: Can't get current robot position.");
 
   return true;
+}
+
+bool MotomanJointTrajectoryStreamer::is_connected()
+{
+  return this->connection_->isConnected();
 }
 
 }  // namespace joint_trajectory_streamer

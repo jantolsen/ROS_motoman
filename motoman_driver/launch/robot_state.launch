@@ -11,9 +11,25 @@
 	<!-- put them on the parameter server -->
 	<param name="robot_ip_address" type="str" value="$(arg robot_ip)" />
 
+	<!-- Parallell-Linkage 
+		Correct for J2/J3 parallel linkage -->
+	<arg name="J23_coupled" default="false"  doc="If true, compensate for J2-J3 parallel linkage"/>
+	<param name="J23_coupled" type="bool" value="$(arg J23_coupled)"/>
+
+	<arg name="debug" default="false"/>
+	<arg name="debug_string"      value="xterm -e gdb -ex run -args" if="$(arg debug)"/>
+    <arg name="debug_string"      value="" unless="$(arg debug)"/>
+
+	<!-- <node name="sequence_node" pkg="control" type="sequence_node" output="screen" launch-prefix="$(arg debug_string)" respawn="true"/> -->
+
 	<!-- load the correct version of the robot state node -->
-	<node if="$(arg use_bswap)" name="joint_state" 
-		pkg="motoman_driver" type="robot_state_bswap" />
+	<!-- <node if="$(arg use_bswap)" name="joint_state" 
+                pkg="motoman_driver" type="robot_state_bswap" respawn="true"/>
 	<node unless="$(arg use_bswap)" name="joint_state" 
-		pkg="motoman_driver" type="robot_state" />
+                pkg="motoman_driver" type="robot_state" respawn="true" /> -->
+
+	<node if="$(arg use_bswap)" name="joint_state" 
+                pkg="motoman_driver" type="robot_state_bswap" respawn="true" launch-prefix="$(arg debug_string)"/>
+	<node unless="$(arg use_bswap)" name="joint_state" 
+                pkg="motoman_driver" type="robot_state" respawn="true" launch-prefix="$(arg debug_string)"/>
 </launch>

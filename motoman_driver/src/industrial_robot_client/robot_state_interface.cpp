@@ -52,6 +52,8 @@ RobotStateInterface::RobotStateInterface()
   this->add_handler(&default_joint_feedback_handler_);
   this->add_handler(&default_joint_feedback_ex_handler_);
   this->add_handler(&default_robot_status_handler_);
+  this->add_handler(&default_joint_info_handler_);
+  this->add_handler(&default_info_handler_);
 }
 
 bool RobotStateInterface::init(std::string default_ip, int default_port, bool version_0)
@@ -92,7 +94,6 @@ bool RobotStateInterface::init(SmplMsgConnection* connection)
   }
   else
   {
-    ROS_INFO("Expecting/assuming single motion-group controller configuration");
     this->version_0_ = true;
     std::vector<std::string> joint_names;
     if (!getJointNames("controller_joint_names", "robot_description", joint_names))
@@ -130,7 +131,26 @@ bool RobotStateInterface::init(SmplMsgConnection* connection, std::map<int, Robo
     ROS_ERROR("Failed to initialize joint feedback handler");
     return false;
   }
+
   this->add_handler(&default_joint_feedback_handler_);
+
+  if (!default_joint_info_handler_.init(connection_, robot_groups_))
+  {
+    ROS_ERROR("Failed to initialize joint information handler");
+    return false;
+  }
+
+  this->add_handler(&default_joint_info_handler_);
+
+
+  if (!default_info_handler_.init(connection_, robot_groups_))
+  {
+    ROS_ERROR("Failed to initialize joint info handler");
+    return false;
+  }
+
+  this->add_handler(&default_info_handler_);
+
 
   if (!default_joint_feedback_ex_handler_.init(connection_, robot_groups_))
   {
@@ -170,6 +190,14 @@ bool RobotStateInterface::init(SmplMsgConnection* connection, std::vector<std::s
   if (!default_joint_feedback_handler_.init(connection_, joint_names_))
     return false;
   this->add_handler(&default_joint_feedback_handler_);
+
+  if (!default_joint_info_handler_.init(connection_, joint_names_))
+    return false;
+  this->add_handler(&default_joint_info_handler_);
+
+  if (!default_info_handler_.init(connection_, joint_names_))
+    return false;
+  this->add_handler(&default_info_handler_);
 
   if (!default_robot_status_handler_.init(connection_))
     return false;

@@ -40,8 +40,10 @@
 #include "simple_message/message_handler.h"
 #include "simple_message/socket/tcp_client.h"
 #include "motoman_driver/industrial_robot_client/joint_relay_handler.h"
+#include "motoman_driver/industrial_robot_client/joint_info_handler.h"
 #include "motoman_driver/industrial_robot_client/robot_group.h"
 #include "motoman_driver/industrial_robot_client/joint_feedback_relay_handler.h"
+#include "motoman_driver/industrial_robot_client/joint_info_relay_handler.h"
 #include "motoman_driver/industrial_robot_client/joint_feedback_ex_relay_handler.h"
 #include "industrial_robot_client/robot_status_relay_handler.h"
 
@@ -55,7 +57,9 @@ using industrial::message_manager::MessageManager;
 using industrial::message_handler::MessageHandler;
 using industrial::tcp_client::TcpClient;
 using industrial_robot_client::joint_relay_handler::JointRelayHandler;
+using industrial_robot_client::joint_info_handler::JointInfoHandler;
 using industrial_robot_client::joint_feedback_relay_handler::JointFeedbackRelayHandler;
+using industrial_robot_client::joint_info_relay_handler::JointInfoRelayHandler;
 using industrial_robot_client::joint_feedback_ex_relay_handler::JointFeedbackExRelayHandler;
 using industrial_robot_client::robot_status_relay_handler::RobotStatusRelayHandler;
 namespace StandardSocketPorts = industrial::simple_socket::StandardSocketPorts;
@@ -173,6 +177,8 @@ protected:
   JointFeedbackRelayHandler default_joint_feedback_handler_;
   JointFeedbackExRelayHandler default_joint_feedback_ex_handler_;
   RobotStatusRelayHandler default_robot_status_handler_;
+  JointInfoHandler default_info_handler_;
+  JointInfoRelayHandler default_joint_info_handler_;
 
   SmplMsgConnection* connection_;
   MessageManager manager_;
