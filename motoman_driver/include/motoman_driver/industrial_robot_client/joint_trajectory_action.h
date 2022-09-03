@@ -47,9 +47,6 @@
 #include <industrial_msgs/RobotStatus.h>
 #include <motoman_driver/industrial_robot_client/robot_group.h>
 #include <motoman_msgs/DynamicJointTrajectory.h>
-#include <motoman_driver/simple_message/motoman_motion_reply_message.h>
-#include <motoman_msgs/MotomanMotionReplyCodes.h>
-
 namespace industrial_robot_client
 {
 namespace joint_trajectory_action
@@ -79,36 +76,14 @@ public:
     ros::spin();
   }
 
-  void createTimers();
-  ros::Timer timer1;
-  ros::Timer timer2;
-
-  void novTriggers(const ros::TimerEvent &e);
-
 private:
   typedef actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction> JointTractoryActionServer;
-
-  /**
-   * \brief Have all the points been sent to motion streaming interface?
-   */
-  bool have_points_streamed_;
-
-  /**
-   * \brief Has the robot moved since the points have been streamed?
-   */
-  bool robot_motion_since_stream_;
-
-  /**
-   * \brief Last time novTriggers didn't see points streamed.
-   */
-  ros::Time last_nonstream_time_;
-  int motion_stopped_check_count_;
 
   /**
    * \brief Internal ROS node handle
    */
   ros::NodeHandle node_;
-  JointTractoryActionServer* actionServer_;
+  actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>* actionServer_;
 
   /**
    * \brief Internal action server
@@ -131,8 +106,6 @@ private:
   ros::Subscriber sub_trajectory_state_;
 
   std::map<int, ros::Subscriber> sub_trajectories_;
-
-  ros::Subscriber feedback_states_;
 
   /**
    * \brief Subscribes to the robot status (typically published by the
@@ -215,9 +188,6 @@ private:
    */
   industrial_msgs::RobotStatusConstPtr last_robot_status_;
 
-  ros::Subscriber sub_motoman_motion_reply_codes_;
-  motoman_msgs::MotomanMotionReplyCodes motoman_motion_reply_codes_;
-
   /**
    * \brief The watchdog period (seconds)
    */
@@ -279,8 +249,6 @@ private:
 
   void controllerStateCB(const control_msgs::FollowJointTrajectoryFeedbackConstPtr &msg, int robot_id);
 
-  void controllerStateCBDGM(const control_msgs::FollowJointTrajectoryFeedbackConstPtr &msg);
-
 
   /**
    * \brief Controller status callback (executed when robot status
@@ -299,8 +267,6 @@ private:
    */
   void abortGoal();
 
-  void novAbortGoalTraj();
-
   void abortGoal(int robot_id);
 
   /**
@@ -318,8 +284,6 @@ private:
 
   bool withinGoalConstraints(const control_msgs::FollowJointTrajectoryFeedbackConstPtr &msg,
                              const trajectory_msgs::JointTrajectory & traj, int robot_id);
-
-  void motomanMotionReplyCodesCB(const motoman_msgs::MotomanMotionReplyCodes& input_msg);
 };
 
 }  // namespace joint_trajectory_action

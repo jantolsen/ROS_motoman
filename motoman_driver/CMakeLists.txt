@@ -61,26 +61,42 @@ catkin_package(
 
 
 set(MSG_SRC_FILES
+  src/simple_message/messages/motoman_motion_ctrl_message.cpp
+  src/simple_message/messages/motoman_motion_reply_message.cpp
+  src/simple_message/messages/motoman_read_mregister_message.cpp
+  src/simple_message/messages/motoman_read_mregister_reply_message.cpp
   src/simple_message/messages/motoman_read_single_io_message.cpp
   src/simple_message/messages/motoman_read_single_io_reply_message.cpp
+  src/simple_message/messages/motoman_read_group_io_message.cpp
+  src/simple_message/messages/motoman_read_group_io_reply_message.cpp
+  src/simple_message/messages/motoman_select_tool_message.cpp
+  src/simple_message/messages/motoman_write_mregister_message.cpp
+  src/simple_message/messages/motoman_write_mregister_reply_message.cpp
   src/simple_message/messages/motoman_write_single_io_message.cpp
   src/simple_message/messages/motoman_write_single_io_reply_message.cpp
+  src/simple_message/messages/motoman_write_group_io_message.cpp
+  src/simple_message/messages/motoman_write_group_io_reply_message.cpp
   src/simple_message/motoman_motion_ctrl.cpp
-  src/simple_message/motoman_motion_ctrl_message.cpp
   src/simple_message/motoman_motion_reply.cpp
-  src/simple_message/motoman_motion_reply_message.cpp
+  src/simple_message/motoman_read_mregister.cpp
+  src/simple_message/motoman_read_mregister_reply.cpp
   src/simple_message/motoman_read_single_io.cpp
   src/simple_message/motoman_read_single_io_reply.cpp
+  src/simple_message/motoman_read_group_io.cpp
+  src/simple_message/motoman_read_group_io_reply.cpp
+  src/simple_message/motoman_select_tool.cpp
+  src/simple_message/motoman_write_mregister.cpp
+  src/simple_message/motoman_write_mregister_reply.cpp
   src/simple_message/motoman_write_single_io.cpp
   src/simple_message/motoman_write_single_io_reply.cpp
+  src/simple_message/motoman_write_group_io.cpp
+  src/simple_message/motoman_write_group_io_reply.cpp
 )
 
 set(CLIENT_SRC_FILES
   src/industrial_robot_client/joint_feedback_ex_relay_handler.cpp
   src/industrial_robot_client/joint_feedback_relay_handler.cpp
-  src/industrial_robot_client/joint_info_relay_handler.cpp
   src/industrial_robot_client/joint_relay_handler.cpp
-  src/industrial_robot_client/joint_info_handler.cpp
   src/industrial_robot_client/joint_trajectory_interface.cpp
   src/industrial_robot_client/joint_trajectory_streamer.cpp
   src/industrial_robot_client/motoman_utils.cpp
@@ -89,10 +105,6 @@ set(CLIENT_SRC_FILES
   src/simple_message/joint_traj_pt_full_ex.cpp
   src/simple_message/messages/joint_feedback_ex_message.cpp
   src/simple_message/messages/joint_traj_pt_full_ex_message.cpp
-  src/gp400/gp400_joint_feedback_relay_handler.cpp
-  src/gp400/gp400_joint_relay_handler.cpp
-  src/gp400/gp400_joint_trajectory_action.cpp
-  src/gp400/gp400_utils.cpp
 )
 
 
@@ -132,8 +144,7 @@ add_executable(motoman_motion_streaming_interface
   src/joint_streaming_node.cpp
   src/joint_trajectory_streamer.cpp
   src/motion_ctrl.cpp
-  src/io_ctrl.cpp
-  src/gp400/gp400_joint_trajectory_streamer.cpp)
+  src/io_ctrl.cpp)
 target_link_libraries(motoman_motion_streaming_interface
   motoman_simple_message
   motoman_industrial_robot_client
@@ -189,8 +200,7 @@ add_executable(motoman_motion_streaming_interface_bswap
   src/joint_streaming_node.cpp
   src/joint_trajectory_streamer.cpp
   src/motion_ctrl.cpp
-  src/io_ctrl.cpp
-  src/gp400/gp400_joint_trajectory_streamer.cpp)
+  src/io_ctrl.cpp)
 target_link_libraries(motoman_motion_streaming_interface_bswap
   motoman_simple_message_bswap
   motoman_industrial_robot_client_bswap

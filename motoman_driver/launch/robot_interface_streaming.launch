@@ -28,18 +28,12 @@
 	     use by nodes below -->
 	<param name="robot_ip_address" type="str" value="$(arg robot_ip)" />
 
-	<!-- Parallell-Linkage 
-		Correct for J2/J3 parallel linkage -->
-	<arg name="J23_coupled" default="false"  doc="If true, compensate for J2-J3 parallel linkage"/>
-	<param name="J23_coupled" type="bool" value="$(arg J23_coupled)"/>
-
 	<!-- robot_state: publishes joint positions and robot-state data
 	     (from socket connection to robot)
 	-->
 	<include file="$(find motoman_driver)/launch/robot_state.launch">
 		<arg name="robot_ip"   value="$(arg robot_ip)" />
 		<arg name="use_bswap"  value="$(arg use_bswap)" />
-		<arg name="J23_coupled" value="$(arg J23_coupled)" />
 	</include>
 
 	<!-- motion_streaming_interface: sends robot motion commands by 
@@ -48,7 +42,6 @@
 	<include file="$(find motoman_driver)/launch/motion_streaming_interface.launch">
 		<arg name="robot_ip"   value="$(arg robot_ip)" />
 		<arg name="use_bswap"  value="$(arg use_bswap)" />
-		<arg name="J23_coupled" value="$(arg J23_coupled)" />
 	</include>
 
 	<!-- io_relay: sends and receives IO reads/writes to the controller
@@ -65,5 +58,5 @@
 	<node if="$(arg version0)" name="joint_trajectory_action"
 		pkg="industrial_robot_client" type="joint_trajectory_action" />
 	<node unless="$(arg version0)" name="joint_trajectory_action"
-                pkg="motoman_driver" type="motoman_driver_joint_trajectory_action" output="screen" />
+		pkg="motoman_driver" type="motoman_driver_joint_trajectory_action" />
 </launch>

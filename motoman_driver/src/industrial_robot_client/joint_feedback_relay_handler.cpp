@@ -76,6 +76,7 @@ bool JointFeedbackRelayHandler::create_messages(SimpleMessage& msg_in,
 {
   // inspect robot_id field first, to avoid "Failed to Convert" message
   JointFeedbackMessage tmp_msg;
+
   tmp_msg.init(msg_in);
 
   if (this->version_0_)
@@ -94,7 +95,6 @@ bool JointFeedbackRelayHandler::create_messages(SimpleMessage& msg_in,
     LOG_ERROR("Failed to convert SimpleMessage");
     return false;
   }
-
   // apply transform, if required
   DynamicJointsGroup xform_joint_state;
   if (!transform(all_joint_state, &xform_joint_state))
@@ -140,14 +140,7 @@ bool JointFeedbackRelayHandler::convert_message(SimpleMessage& msg_in, DynamicJo
     LOG_ERROR("Failed to initialize joint feedback message");
     return false;
   }
-  //industrial::joint_data::JointData dest;
-  //joint_feedback_msg.getPositions(dest);
-  //LOG_ERROR("JFM time, %f",dest.joints_[0]);
-  //LOG_ERROR("JFM time, %f",dest.joints_[1]);
-  //LOG_ERROR("JFM time, %f",dest.joints_[2]);
-  //LOG_ERROR("JFM time, %f",dest.joints_[3]);
-  //LOG_ERROR("JFM time, %f",dest.joints_[4]);
-  //LOG_ERROR("JFM time, %f",dest.joints_[5]);
+
   return convert_message(joint_feedback_msg, joint_state, robot_id);
 }
 

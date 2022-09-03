@@ -92,6 +92,7 @@ bool JointTrajectoryInterface::init(SmplMsgConnection* connection)
   }
   else
   {
+    ROS_INFO("Expecting/assuming single motion-group controller configuration");
     this->version_0_ = true;
     std::vector<std::string> joint_names;
     if (!getJointNames("controller_joint_names", "robot_description", joint_names))
@@ -126,11 +127,6 @@ bool JointTrajectoryInterface::init(SmplMsgConnection* connection, const std::ve
   this->sub_cur_pos_ = this->node_.subscribe(
                          "joint_states", 1, &JointTrajectoryInterface::jointStateCB, this);
 
-//  this->pub_motoman_motion_reply_ = this->node_.advertise<motoman::simple_message::motion_reply::MotionReply>(
-//                                      "motoman_motion_reply", 1);
-  this->pub_motoman_motion_reply_codes_ = node_.advertise<motoman_msgs::MotomanMotionReplyCodes>(
-                                      "motoman_motion_reply_codes", 1);
-
   return true;
 }
 
@@ -156,10 +152,6 @@ bool JointTrajectoryInterface::init(
                                   "joint_path_command", 0, &JointTrajectoryInterface::jointTrajectoryExCB, this);
   this->srv_stop_motion_ = this->node_.advertiseService(
                              "stop_motion", &JointTrajectoryInterface::stopMotionCB, this);
-
-  this->pub_motoman_motion_reply_codes_ = node_.advertise<motoman_msgs::MotomanMotionReplyCodes>(
-                                      "motoman_motion_reply_codes", 1);
-
 
   for (it_type iterator = this->robot_groups_.begin(); iterator != this->robot_groups_.end(); iterator++)
   {
