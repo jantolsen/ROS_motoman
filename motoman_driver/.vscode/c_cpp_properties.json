@@ -1,0 +1,28 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/jan/ros_ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/jan/ros_ws/src/niryo_one_ros/dynamixel_sdk/include/**",
+        "/home/jan/ros_ws/src/niryo_one_ros/mcp_can_rpi/include/**",
+        "/home/jan/ros_ws/src/motoman/motoman_driver/include/**",
+        "/home/jan/ros_ws/src/niryo_one_ros/niryo_one_debug/include/**",
+        "/home/jan/ros_ws/src/niryo_one_ros/niryo_one_driver/include/**",
+        "/home/jan/ros_ws/src/robot/robot_commander/include/**",
+        "/home/jan/ros_ws/src/xbox_joy/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

@@ -1,0 +1,71 @@
+# joint_limits.yaml allows the dynamics properties specified in the URDF to be overwritten or augmented as needed
+# Specific joint properties can be changed with the keys [max_position, min_position, max_velocity, max_acceleration]
+# Joint limits can be turned off with [has_velocity_limits, has_acceleration_limits]
+joint_limits:
+#  carriage_1:
+#    has_velocity_limits: true
+#    max_velocity: 1.25 #0.5
+#    has_acceleration_limits: true
+#    max_acceleration: 5
+  joint_1:
+    has_velocity_limits: true
+    max_velocity: 1.745329252
+    has_acceleration_limits: true
+    max_acceleration: 13
+  joint_2:
+    has_velocity_limits: true
+    max_velocity: 1.5707963268
+    has_acceleration_limits: true
+    max_acceleration: 6
+  joint_3:
+    has_velocity_limits: true
+    max_velocity: 1.6929693744
+    has_acceleration_limits: true
+    max_acceleration: 12
+  joint_4:
+    has_velocity_limits: true
+    max_velocity: 2.0943951024
+    has_acceleration_limits: true
+    max_acceleration: 10
+  joint_5:
+    has_velocity_limits: true
+    max_velocity: 2.0943951024
+    has_acceleration_limits: true
+    max_acceleration: 10
+  joint_6:
+    has_velocity_limits: true
+    max_velocity: 3.3161255788
+    has_acceleration_limits: true
+    max_acceleration: 15 #8
+
+# below for ABB IRB6660
+#joint_1:
+#  has_velocity_limits: true
+#  max_velocity: 2.26892802759
+#  has_acceleration_limits: true
+#  max_acceleration: 20.420352248
+#joint_2:
+#  has_velocity_limits: true
+#  max_velocity: 2.26892802759
+#  has_acceleration_limits: true
+#  max_acceleration: 20.420352248
+#joint_3:
+#  has_velocity_limits: true
+#  max_velocity: 2.26892802759
+#  has_acceleration_limits: true
+#  max_acceleration: 20.420352248
+#joint_4:
+#  has_velocity_limits: true
+#  max_velocity: 2.61799387799
+#  has_acceleration_limits: true
+#  max_acceleration: 23.561944902
+#joint_5:
+#  has_velocity_limits: true
+#  max_velocity: 2.09439510239
+#  has_acceleration_limits: true
+#  max_acceleration: 18.849555922
+#joint_6:
+#  has_velocity_limits: true
+#  max_velocity: 3.31612557879
+#  has_acceleration_limits: true
+#  max_acceleration: 29.845130209

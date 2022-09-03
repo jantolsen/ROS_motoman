@@ -11,6 +11,11 @@
   <!-- put them on the parameter server -->
   <param name="robot_ip_address" type="str" value="$(arg robot_ip)" />
 
+  <!-- Parallell-Linkage 
+		Correct for J2/J3 parallel linkage -->
+	<arg name="J23_coupled" default="false"  doc="If true, compensate for J2-J3 parallel linkage"/>
+	<param name="J23_coupled" type="bool" value="$(arg J23_coupled)"/>
+
   <!-- load the correct version of the motion streaming node -->
   <node if="$(arg use_bswap)" name="motion_streaming_interface"
         pkg="motoman_driver" type="motion_streaming_interface_bswap" />

@@ -59,3 +59,5 @@ motoman_driver/MotoPlus/_buildLog/MotoROSYRC1000u.log
 /motoman_gp8_support/out/build/x64-Debug (default)
 /motoman_gp88_support/out/build/x64-Debug (default)
 /motoman_gp7_support/out/build/x64-Debug (default)
+
+.vscode/*

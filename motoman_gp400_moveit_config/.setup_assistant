@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: motoman_gp400
+    relative_path: urdf/gp400.urdf
+    xacro_args: "--inorder "
+  SRDF:
+    relative_path: config/motoman_gp400.srdf
+  CONFIG:
+    author_name: Jan T. Olsen
+    author_email: jan.olsen@nov.com
+    generated_timestamp: 1646935810

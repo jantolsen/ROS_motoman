@@ -105,6 +105,10 @@ set(CLIENT_SRC_FILES
   src/simple_message/joint_traj_pt_full_ex.cpp
   src/simple_message/messages/joint_feedback_ex_message.cpp
   src/simple_message/messages/joint_traj_pt_full_ex_message.cpp
+  src/gp400/gp400_joint_feedback_relay_handler.cpp
+  src/gp400/gp400_joint_relay_handler.cpp
+  src/gp400/gp400_joint_trajectory_action.cpp
+  src/gp400/gp400_utils.cpp
 )
 
 
@@ -144,7 +148,8 @@ add_executable(motoman_motion_streaming_interface
   src/joint_streaming_node.cpp
   src/joint_trajectory_streamer.cpp
   src/motion_ctrl.cpp
-  src/io_ctrl.cpp)
+  src/io_ctrl.cpp
+  src/gp400/gp400_joint_trajectory_streamer.cpp)
 target_link_libraries(motoman_motion_streaming_interface
   motoman_simple_message
   motoman_industrial_robot_client
@@ -200,7 +205,8 @@ add_executable(motoman_motion_streaming_interface_bswap
   src/joint_streaming_node.cpp
   src/joint_trajectory_streamer.cpp
   src/motion_ctrl.cpp
-  src/io_ctrl.cpp)
+  src/io_ctrl.cpp
+  src/gp400/gp400_joint_trajectory_streamer.cpp)
 target_link_libraries(motoman_motion_streaming_interface_bswap
   motoman_simple_message_bswap
   motoman_industrial_robot_client_bswap

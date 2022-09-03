@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>motoman_gp400</name>
+  <version>0.0.0</version>
+  <description>Attempted support for the Motoman GP400</description>
+  <author>Jan T. Olsen</author>
+
+  <maintainer email="jan.olsen@nov.com">Jan Olsen</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <test_depend>roslaunch</test_depend>
+
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>motoman_driver</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <export>
+  <architecture_independent/>
+  </export>
+</package>
+
