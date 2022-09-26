@@ -107,7 +107,6 @@ set(CLIENT_SRC_FILES
   src/simple_message/messages/joint_traj_pt_full_ex_message.cpp
   src/gp400/gp400_joint_feedback_relay_handler.cpp
   src/gp400/gp400_joint_relay_handler.cpp
-  src/gp400/gp400_joint_trajectory_action.cpp
   src/gp400/gp400_utils.cpp
 )
 

@@ -20,14 +20,8 @@
 
 // Include Header-files:
 // -------------------------------
-// #include "motoman_driver/industrial_robot_client/robot_state_interface.h"
 #include "motoman_driver/industrial_robot_client/joint_feedback_relay_handler.h"
 #include "motoman_driver/gp400/gp400_utils.h"
-
-
-#include "motoman_driver/industrial_robot_client/joint_info_relay_handler.h"
-
-
 
 // Namespace: Motoman
 // -------------------------------

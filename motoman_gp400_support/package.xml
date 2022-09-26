@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>motoman_gp400</name>
+  <name>motoman_gp400_support</name>
   <version>0.0.0</version>
   <description>Attempted support for the Motoman GP400</description>
   <author>Jan T. Olsen</author>

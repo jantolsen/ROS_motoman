@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 
-project(motoman_gp400)
+project(motoman_gp400_support)
 
 find_package(catkin REQUIRED)
 
@@ -16,7 +16,7 @@ install(DIRECTORY config launch meshes urdf
 
 ## ____________________________________________
 ###cmake_minimum_required(VERSION 2.8.3)
-###project(motoman_gp400_support_dgm)
+###project(motoman_gp400_support)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -119,7 +119,7 @@ install(DIRECTORY config launch meshes urdf
 ## DEPENDS: system dependencies of this project that dependent projects also need
 ###catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES motoman_gp400_support_dgm
+#  LIBRARIES motoman_gp400_support
 #  CATKIN_DEPENDS roscpp
 #  DEPENDS system_lib
 ###)
@@ -137,7 +137,7 @@ install(DIRECTORY config launch meshes urdf
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/motoman_gp400_support_dgm.cpp
+#   src/${PROJECT_NAME}/motoman_gp400_support.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -148,7 +148,7 @@ install(DIRECTORY config launch meshes urdf
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/motoman_gp400_support_dgm_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/motoman_gp400_support.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -205,7 +205,7 @@ install(DIRECTORY config launch meshes urdf
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_motoman_gp400_support_dgm.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/motoman_gp400_support.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

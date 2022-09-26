@@ -69,10 +69,6 @@ int main(int argc, char** argv)
     motoman::GP400::JointTrajectoryStreamer motionInterface;
 
     motionInterface.init("", FS100_motion_port, false);
-
-    if(motionInterface.is_connected()==false)
-      throw "Communication not established";
-
     motionInterface.run();
   }
 
@@ -83,10 +79,6 @@ int main(int argc, char** argv)
     MotomanJointTrajectoryStreamer motionInterface;
 
     motionInterface.init("", FS100_motion_port, false);
-
-    if(motionInterface.is_connected()==false)
-      throw "Communication not established";
-
     motionInterface.run();
   }
 

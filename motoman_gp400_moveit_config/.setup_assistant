@@ -1,6 +1,6 @@
 moveit_setup_assistant_config:
   URDF:
-    package: motoman_gp400
+    package: motoman_gp400_support
     relative_path: urdf/gp400.urdf
     xacro_args: "--inorder "
   SRDF:
