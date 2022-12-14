@@ -78,7 +78,7 @@ public:
    *
    * \param robot_id robot group # on this controller (for multi-group systems)
    */
-  explicit MotomanJointTrajectoryStreamer(int robot_id = -1) : JointTrajectoryStreamer(1),
+  MotomanJointTrajectoryStreamer(int robot_id = -1) : JointTrajectoryStreamer(1),
     robot_id_(robot_id) {}
 
   ~MotomanJointTrajectoryStreamer();
@@ -133,6 +133,9 @@ public:
   virtual void streamingThread();
 
 protected:
+  static const double pos_stale_time_ = 1.0;  // max time since last "current position" update, for validation (sec)
+  static const double start_pos_tol_  = 5e-4; // max difference btwn start & current position, for validation (rad)
+
   int robot_id_;
   MotomanMotionCtrl motion_ctrl_;
 
@@ -150,6 +153,11 @@ protected:
 
   static bool VectorToJointData(const std::vector<double> &vec,
                                 industrial::joint_data::JointData &joints);
+
+  // variables for point streaming
+  double time_ptstreaming_last_point_;  // time at which the last point was received
+  double dt_ptstreaming_points_;        // elapsed time between two received points
+  static const double ptstreaming_timeout_ = 3.0; // seconds
 
   /**
    * \brief Service used to disable the robot controller.  When disabled,
