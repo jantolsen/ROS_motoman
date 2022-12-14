@@ -130,7 +130,7 @@ public:
   bool send_to_robot(const std::vector<SimpleMessage>& messages);
 
 protected:
-  static const size_t max_ptstreaming_queue_elements = 20;
+  static constexpr size_t max_ptstreaming_queue_elements = 20;
 
   void trajectoryStop();
 
